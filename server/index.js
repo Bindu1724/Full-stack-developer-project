@@ -1,10 +1,12 @@
 const express = require('express');
-const dotenv = require('dotenv').config();
+const dotenv = require('dotenv');
+dotenv.config();
 const mongoose = require('mongoose');
 const cors = require('cors');
 const axios = require('axios');
 const http = require('http');
 const socketIo = require('socket.io');
+
 
 const port = process.env.PORT || 5001;
 
@@ -18,6 +20,9 @@ app.use(express.json());
 mongoose.connect('mongodb://localhost:27017/weather_dashboard')
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.log('MongoDB connection error:', err));
+
+console.log('OWM_API_KEY present?', !!process.env.OWM_API_KEY);
+console.log('OWM_API_KEY preview:', process.env.OWM_API_KEY ? `${process.env.OWM_API_KEY.slice(0,4)}...` : 'missing');
 
 const Location = mongoose.model('Location', new mongoose.Schema({
   city: { type: String, required: true, trim: true },
@@ -42,6 +47,7 @@ app.post('/api/locations', async (req, res) => {
   
 });
 
+
 app.get('/api/locations', async (req, res) => {
   const locs = await Location.find();
   res.send(locs);
@@ -49,11 +55,12 @@ app.get('/api/locations', async (req, res) => {
 
 app.get('/api/weather/:city', async (req, res) => {
   try {
-    const { city } = req.params;
-    const apiKey = process.env.OWN_API_KEY;
-    if (!apiKey) return res.status(500).json({ error: 'OpenWeather API key not configured' });
+    const { city } = req.params.city;
+    const apiKey = process.env.OWM_API_KEY;
+    if (!apiKey) return res.status(500).json({ error: 'OpenWeather API key not configured on server' });
 
-    const response = await axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`, {
+    const response = await axios.get(`https://api.openweathermap.org/data/2.5/weather`, {
+      params: { q: city, appid: apiKey, units: 'metric' },
       timeout: 10000
     });
     return res.json(response.data);
@@ -70,7 +77,7 @@ setInterval(async () => {
     const locations = await Location.find();
     for (const loc of locations) {
       try {
-        const response = await axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${loc.city}&appid=${process.env.OWN_API_KEY}&units=metric`, {
+        const response = await axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${loc.city}&appid=${process.env.OWM_API_KEY}&units=metric`, {
           timeout: 10000
         });
         io.emit('weatherUpdate', { city: loc.city, data: response.data });
