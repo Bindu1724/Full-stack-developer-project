@@ -1,38 +1,31 @@
-.App {
-  text-align: center;
+/* small Bootstrap-friendly tweaks */
+
+header .display-6 {
+  font-size: 2rem;
+  line-height: 1;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.card h5 {
+  font-weight: 600;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+input.form-control {
+  min-height: 44px;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.btn-primary {
+  min-width: 90px;
 }
 
-.App-link {
-  color: #61dafb;
+/* ensure WeatherCard fits nicely if it doesn't use .card */
+.weathercard-wrapper,
+.weather-card {
+  height: 100%;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
+@media (max-width: 575.98px) {
+  .container {
+    padding-left: 12px;
+    padding-right: 12px;
   }
 }

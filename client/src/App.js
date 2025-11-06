@@ -2,6 +2,9 @@ import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import io from 'socket.io-client';
 import WeatherCard from './weathercard';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './App.css';
+
 
 const API = 'http://localhost:5001';
 
@@ -66,32 +69,80 @@ function App() {
     }
   };
 
-  return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4"> 🌤️ Real-Time Weather Dashboard</h1>
-      <div className="text-red-600 mb-2">{error}</div>
+   return (
+    <div className="container py-4">
+      <header className="d-flex align-items-center mb-4">
+        <span className="display-6 me-3">🌤</span>
+        <h1 className="h4 mb-0">Real-Time Weather Dashboard</h1>
+      </header>
+
+      {error && <div className="alert alert-danger">{error}</div>}
+
       <div className="mb-4">
-        <input 
-        value={cityName} 
-        onChange={(e) => setCityName(e.target.value)}
-        placeholder="Enter a city name" className="border p-2 mr-2" 
-        />
-        <button
-         onClick={handleAddCity} 
-         className="bg-blue-500 text-white px-4 py-2"
-         >
-          Add
-        </button>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-          {locations.map(loc => {
-            const data = weatherData[loc.city];
-            // guard: only render WeatherCard when we have valid weather object
-            if (!data) return <div key={loc._id || loc.city} className="bg-gray-100 p-4 rounded shadow">Loading {loc.city}...</div>;
-            if (data.error) return <div key={loc._id || loc.city} className="bg-red-100 p-4 rounded shadow text-red-700">{loc.city}: {data.error}</div>;
-            return <WeatherCard key={loc._id || loc.city} city={loc.city} data={data} />;
-          })}
+        <div className="row g-2 align-items-center">
+          <div className="col-12 col-md-8">
+            <div className="input-group">
+              <input
+                value={cityName}
+                onChange={(e) => setCityName(e.target.value)}
+                placeholder="Enter a city name"
+                className="form-control"
+              />
+              <button onClick={handleAddCity} className="btn btn-primary">
+                Add
+              </button>
+            </div>
+          </div>
+          <div className="col-12 col-md-4 text-md-end mt-2 mt-md-0">
+            <small className="text-muted">Add city to track current weather</small>
+          </div>
         </div>
+      </div>
+
+      <div className="row">
+        {locations.length === 0 && (
+          <div className="col-12">
+            <div className="alert alert-info">No cities saved. Add a city to begin.</div>
+          </div>
+        )}
+
+        {locations.map(loc => {
+          const key = loc._id || loc.city;
+          const data = weatherData[loc.city];
+
+          if (!data) {
+            return (
+              <div key={key} className="col-12 col-sm-6 col-md-4 mb-3">
+                <div className="card h-100">
+                  <div className="card-body d-flex align-items-center justify-content-center">
+                    <div className="spinner-border text-primary me-2" role="status" aria-hidden="true"></div>
+                    <div>Loading {loc.city}...</div>
+                  </div>
+                </div>
+              </div>
+            );
+          }
+
+          if (data.error) {
+            return (
+              <div key={key} className="col-12 col-sm-6 col-md-4 mb-3">
+                <div className="card h-100 border-danger">
+                  <div className="card-body">
+                    <h5 className="card-title">{loc.city}</h5>
+                    <p className="text-danger mb-0">{data.error}</p>
+                  </div>
+                </div>
+              </div>
+            );
+          }
+
+          // If WeatherCard renders its own card markup, wrap it in a col.
+          return (
+            <div key={key} className="col-12 col-sm-6 col-md-4 mb-3">
+              <WeatherCard city={loc.city} data={data} />
+            </div>
+          );
+        })}
       </div>
     </div>
   );
