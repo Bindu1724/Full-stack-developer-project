@@ -27,6 +27,7 @@ socket.io-client  --  Enables real-time communication from the frontend to a Soc
 
 npm install bootstrap
 
+Open two terminal windows and run "npm start" in the server and client folders respectively.
 
 
 
