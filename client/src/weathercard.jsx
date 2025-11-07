@@ -14,10 +14,10 @@ export default function WeatherCard({ city, data }) {
   // show API error if present
   if (data.error) {
     return (
-      <div className="card h-100 border-danger">
+      <div className="card bg-warning text-dark" style={{ borderRadius: 8 }}>
         <div className="card-body">
           <h5 className="card-title">{city}</h5>
-          <p className="text-danger mb-0">{data.error}</p>
+          <p className="card-text text-danger mb-0">{data.error}</p>
         </div>
       </div>
     );
@@ -28,7 +28,7 @@ export default function WeatherCard({ city, data }) {
   const temp = data?.main?.temp ?? 'N/A';
 
   return (
-    <div className="card h-100 shadow-sm">
+    <div className="card bg-warning text-dark" style={{ borderRadius: 8 }}>
       <div className="card-body">
         <h5 className="card-title mb-2">{city}</h5>
         <p className="card-text text-capitalize mb-1">{description}</p>
