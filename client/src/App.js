@@ -3,8 +3,6 @@ import axios from 'axios';
 import io from 'socket.io-client';
 import WeatherCard from './weathercard';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './App.css';
-
 
 const API = 'http://localhost:5001';
 
@@ -14,13 +12,17 @@ function App() {
   const [cityName, setCityName] = useState('');
   const [error, setError] = useState('');
   const socketRef = useRef(null);
+  const [loadingAdd, setLoadingAdd] = useState(false);
 
   useEffect(() => {
     (async () => {
       try {
         const res = await axios.get(`${API}/api/locations`);
         setLocations(res.data || []);
-        (res.data || []).forEach(loc => fetchWeather(loc.city));
+        (res.data || []).forEach(loc => {
+          const name = loc.city ?? loc;
+          fetchWeather(name);
+        });
       } catch (err) {
         setError('Failed to load locations');
         console.error(err);
@@ -41,7 +43,6 @@ function App() {
   const fetchWeather = async (city) => {
     try {
       const res = await axios.get(`${API}/api/weather/${encodeURIComponent(city)}`);
-      // only set state if API returned expected object
       if (res.data && res.data.weather && res.data.main) {
         setWeatherData(prev => ({ ...prev, [city]: res.data }));
       } else {
@@ -56,49 +57,61 @@ function App() {
   };
 
   const handleAddCity = async () => {
-    const city = cityName.trim();     //removes extra whitespaces
-    if (!city)      //checks if city name is empty
-      return setError(' Please enter a city name');
-    setError('');   //clears previous error
-    try {
-      await axios.post(`${API}/api/locations`, { city });
-      setCityName('');
-    } catch (err) {
-      setError(err.response?.data?.error || 'Failed to add city');
-      console.error('Add city error:', err);
-    }
-  };
+  const city = cityName.trim();
+  if (!city) {
+    setError('Please enter a city name');
+    return;
+  }
+  setError('');
+  setLoadingAdd(true);
+  try {
+    // POST to your backend which will call the geocode endpoint
+    await axios.post(`${API}/api/locations`, { city });
+    setCityName('');
+    // optimistic update: add new location and fetch weather
+    setLocations(prev => {
+      const exists = prev.some(p => (p.city ?? p).toLowerCase() === city.toLowerCase());
+      if (exists) return prev;
+      fetchWeather(city);
+      return [...prev, { city }];
+    });
+  } catch (err) {
+    // show useful message from backend or fallback
+    setError(err.response?.data?.error || err.message || 'Failed to add city');
+    console.error('Add city error:', err.response?.data || err.message || err);
+  } finally {
+    setLoadingAdd(false);
+  }
+};
 
-   return (
-    <div className="container py-4">
-      <header className="d-flex align-items-center mb-4">
+  return (
+    <div className="container">
+      <header className="d-flex justify-content-center mb-5 mt-5">
         <span className="display-6 me-3">🌤</span>
-        <h1 className="h4 mb-0">Real-Time Weather Dashboard</h1>
+        <h1 className="h2">Real-Time Weather Dashboard</h1>
       </header>
 
       {error && <div className="alert alert-danger">{error}</div>}
 
-      <div className="mb-4">
-        <div className="row g-2 align-items-center">
+      <div className="mb-5">
+        <div className="row g-4 justify-content-center">
           <div className="col-12 col-md-8">
-            <div className="input-group">
+            <div className="input-group justify-content-center">
               <input
                 value={cityName}
                 onChange={(e) => setCityName(e.target.value)}
                 placeholder="Enter a city name"
-                className="form-control"
+                className="form-control form-control-lg me-1"
               />
               <button onClick={handleAddCity} className="btn btn-primary">
                 Add
               </button>
             </div>
           </div>
-          <div className="col-12 col-md-4 text-md-end mt-2 mt-md-0">
-            <small className="text-muted">Add city to track current weather</small>
-          </div>
         </div>
       </div>
 
+      {/* Weather cards grid */}
       <div className="row">
         {locations.length === 0 && (
           <div className="col-12">
@@ -106,40 +119,14 @@ function App() {
           </div>
         )}
 
-        {locations.map(loc => {
-          const key = loc._id || loc.city;
-          const data = weatherData[loc.city];
+        {locations.map((loc) => {
+          const name = loc.city ?? loc;
+          const key = loc._id ?? name;
+          const data = weatherData[name];
 
-          if (!data) {
-            return (
-              <div key={key} className="col-12 col-sm-6 col-md-4 mb-3">
-                <div className="card h-100">
-                  <div className="card-body d-flex align-items-center justify-content-center">
-                    <div className="spinner-border text-primary me-2" role="status" aria-hidden="true"></div>
-                    <div>Loading {loc.city}...</div>
-                  </div>
-                </div>
-              </div>
-            );
-          }
-
-          if (data.error) {
-            return (
-              <div key={key} className="col-12 col-sm-6 col-md-4 mb-3">
-                <div className="card h-100 border-danger">
-                  <div className="card-body">
-                    <h5 className="card-title">{loc.city}</h5>
-                    <p className="text-danger mb-0">{data.error}</p>
-                  </div>
-                </div>
-              </div>
-            );
-          }
-
-          // If WeatherCard renders its own card markup, wrap it in a col.
           return (
             <div key={key} className="col-12 col-sm-6 col-md-4 mb-3">
-              <WeatherCard city={loc.city} data={data} />
+              <WeatherCard city={name} data={data} />
             </div>
           );
         })}
