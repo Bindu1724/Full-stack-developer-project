@@ -25,13 +25,8 @@ npm install axios socket.io-client: Installs two runtime dependencies
 axios	          --  HTTP client for making API requests from the frontend (e.g., to your Express server or external APIs)
 socket.io-client  --  Enables real-time communication from the frontend to a Socket.IO server
 
-npm install -D tailwindcss postcss autoprefixer
+npm install bootstrap
 
-tailwindcss	    -- Utility-first CSS framework for fast, responsive UI design
-postcss	CSS     -- processor that lets you use plugins to transform styles
-autoprefixer	-- PostCSS plugin that adds vendor prefixes to CSS (for cross-browser support)
-
-npx tailwindcss init -p
 
 
 
