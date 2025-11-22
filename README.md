@@ -1,5 +1,18 @@
-# Full-stack-developer-project
-Backend setup:
+## 🌦️ OpenWeather MERN App
+
+A full-stack weather application built with the **MERN stack** (MongoDB, Express.js, React, Node.js) that fetches real-time weather data from the [OpenWeatherMap API](https://openweathermap.org/api).  
+This project demonstrates **authentication, CRUD operations, API integration, and deployment** using modern cloud platforms.
+
+## 🚀 Features
+- 🌍 **Real-time Weather Data** via OpenWeatherMap API
+- 📊 **Dashboard** to view and manage saved cities
+- 🗄️ **MongoDB Atlas** for cloud-hosted database
+- ⚡ **Express.js Backend** with RESTful APIs
+- 🎨 **Responsive UI** built with React + Bootstrap
+- ☁️ **Deployed on Vercel (frontend)** and **Render (backend)**
+
+## 📂 Project Structure
+# Backend setup:
 
 mkdir server : Creates a new directory named server.
 cd server : Changes the current working directory to server.
@@ -15,7 +28,7 @@ cors	--   Middleware to enable Cross-Origin Resource Sharing
 dotenv	 --  Loads environment variables from a .env file into process.env
 socket.io -- Enables real-time, bi-directional communication (e.g., chat apps)
 
-Frontend Setup:
+# Frontend Setup:
 
 Step 1: Create React App
 npx create-react-app client
@@ -27,7 +40,21 @@ socket.io-client  --  Enables real-time communication from the frontend to a Soc
 
 npm install bootstrap
 
-Open two terminal windows and run "npm start" in the server and client folders respectively.
+## Run Locally (make sure to run server and client separately in different terminals)
+# Backend
+cd server
+npm start
+ 
+# Frontend
+cd client
+npm start
+
+
+
+
+
+
+
 
 
 
